@@ -1,0 +1,505 @@
+Aplicación de los principios SOLID en ASP.NET Core
+Introducción
+SOLID es un conjunto de cinco principios de diseño orientado a objetos que ayudan a desarrollar aplicaciones más ordenadas, mantenibles, reutilizables y fáciles de probar. Estos principios fueron propuestos para reducir el acoplamiento entre las clases y evitar que un cambio realizado en una parte del sistema afecte innecesariamente otras funcionalidades.
+Los cinco principios SOLID son:
+1.	Principio de responsabilidad única.
+2.	Principio abierto/cerrado.
+3.	Principio de sustitución de Liskov.
+4.	Principio de segregación de interfaces.
+5.	Principio de inversión de dependencias.
+Durante el curso, estos principios se pueden observar especialmente en los temas de MVC, Entity Framework Core, controladores, servicios, interfaces, inyección de dependencias, operaciones CRUD y manejo de excepciones.
+________________________________________
+1. Principio de responsabilidad única
+Single Responsibility Principle — SRP
+Este principio establece que una clase debe tener una sola responsabilidad o una única razón para cambiar. Una clase no debería encargarse al mismo tiempo de validar información, acceder a la base de datos, controlar las vistas y manejar los errores.
+En una aplicación ASP.NET Core, las responsabilidades pueden distribuirse de la siguiente manera:
+•	El modelo representa los datos.
+•	El repositorio accede a la base de datos.
+•	El servicio contiene las reglas del negocio.
+•	El controlador recibe las solicitudes HTTP.
+•	La vista presenta la información al usuario.
+Evidencia de aplicación
+En el proyecto desarrollado durante el curso se puede identificar este principio en clases como ClientesController, ClienteService y ClienteRepository.
+Modelo
+public class Cliente
+{
+    public int ClienteId { get; set; }
+    public string Identificacion { get; set; } = string.Empty;
+    public string Nombre { get; set; } = string.Empty;
+    public string Apellidos { get; set; } = string.Empty;
+    public string Correo { get; set; } = string.Empty;
+}
+La clase Cliente solamente representa la información correspondiente a un cliente.
+Repositorio
+public class ClienteRepository
+{
+    private readonly AppDbContext context;
+
+    public ClienteRepository(AppDbContext context)
+    {
+        this.context = context;
+    }
+
+    public List<Cliente> ObtenerTodos()
+    {
+        return context.Clientes.ToList();
+    }
+
+    public Cliente? ObtenerPorId(int id)
+    {
+        return context.Clientes.Find(id);
+    }
+
+    public void Insertar(Cliente cliente)
+    {
+        context.Clientes.Add(cliente);
+        context.SaveChanges();
+    }
+}
+El repositorio tiene como responsabilidad realizar operaciones relacionadas con la base de datos.
+Servicio
+public class ClienteService
+{
+    private readonly ClienteRepository clienteRepository;
+
+    public ClienteService(ClienteRepository clienteRepository)
+    {
+        this.clienteRepository = clienteRepository;
+    }
+
+    public void RegistrarCliente(Cliente cliente)
+    {
+        if (string.IsNullOrWhiteSpace(cliente.Nombre))
+        {
+            throw new ArgumentException("El nombre es obligatorio.");
+        }
+
+        clienteRepository.Insertar(cliente);
+    }
+}
+El servicio se encarga de aplicar las reglas del negocio y las validaciones necesarias antes de guardar los datos.
+Controlador
+public class ClientesController : Controller
+{
+    private readonly ClienteService clienteService;
+
+    public ClientesController(ClienteService clienteService)
+    {
+        this.clienteService = clienteService;
+    }
+
+    public IActionResult Index()
+    {
+        var clientes = clienteService.ObtenerClientes();
+        return View(clientes);
+    }
+}
+El controlador recibe la solicitud, llama al servicio y devuelve una vista. No contiene directamente el código de acceso a la base de datos.
+Relación con los contenidos del curso
+Este principio se relaciona con:
+•	Patrones MVC.
+•	Model Class.
+•	Controladores y acciones.
+•	Entity Framework Core.
+•	DbContext y DbSet.
+•	Operaciones CRUD.
+•	Vistas Razor.
+•	Manejo de excepciones.
+________________________________________
+2. Principio abierto/cerrado
+Open/Closed Principle — OCP
+Este principio indica que las clases deben estar abiertas para su extensión, pero cerradas para su modificación.
+Esto significa que debería ser posible agregar nuevas funcionalidades sin cambiar constantemente el código que ya funciona. Para lograrlo se pueden utilizar interfaces, herencia, clases abstractas, estrategias o nuevos servicios.
+Evidencia de aplicación
+Un ejemplo puede encontrarse en la generación de diferentes tipos de reportes.
+public interface IGeneradorReporte
+{
+    byte[] Generar();
+}
+Se pueden crear diferentes implementaciones sin modificar la interfaz ni las clases existentes.
+public class ReporteCsv : IGeneradorReporte
+{
+    public byte[] Generar()
+    {
+        var contenido = "Id,Nombre,Correo";
+        return System.Text.Encoding.UTF8.GetBytes(contenido);
+    }
+}
+Posteriormente se puede agregar otro formato:
+public class ReportePdf : IGeneradorReporte
+{
+    public byte[] Generar()
+    {
+        // Lógica para generar el reporte PDF.
+        return Array.Empty<byte>();
+    }
+}
+El controlador puede trabajar con la interfaz:
+public class ReportesController : Controller
+{
+    private readonly IGeneradorReporte generadorReporte;
+
+    public ReportesController(IGeneradorReporte generadorReporte)
+    {
+        this.generadorReporte = generadorReporte;
+    }
+
+    public IActionResult Descargar()
+    {
+        var archivo = generadorReporte.Generar();
+
+        return File(
+            archivo,
+            "application/octet-stream",
+            "reporte"
+        );
+    }
+}
+En este caso, se puede cambiar o agregar un nuevo generador de reportes sin modificar la lógica principal del controlador.
+Otro ejemplo en un CRUD
+También se cumple este principio cuando se agregan nuevos servicios o validaciones mediante clases separadas, en lugar de modificar completamente un controlador.
+Por ejemplo, una validación de correo puede implementarse en un servicio:
+public interface IValidadorCliente
+{
+    void Validar(Cliente cliente);
+}
+public class ValidadorCliente : IValidadorCliente
+{
+    public void Validar(Cliente cliente)
+    {
+        if (string.IsNullOrWhiteSpace(cliente.Correo))
+        {
+            throw new ArgumentException("El correo es obligatorio.");
+        }
+    }
+}
+Después pueden crearse otros validadores sin modificar el controlador.
+Relación con los contenidos del curso
+Este principio se relaciona con:
+•	Interfaces.
+•	Inyección de dependencias.
+•	Generación de archivos CSV.
+•	Controladores.
+•	Servicios.
+•	Excepciones personalizadas.
+•	Configuración de servicios.
+•	Minimal API.
+•	Operaciones CRUD.
+________________________________________
+3. Principio de sustitución de Liskov
+Liskov Substitution Principle — LSP
+Este principio establece que una clase derivada debe poder sustituir a su clase base sin modificar el funcionamiento esperado del sistema.
+En otras palabras, cualquier implementación de una interfaz debe respetar el comportamiento definido por esa interfaz.
+Evidencia de aplicación
+Se puede aplicar mediante una interfaz de repositorio.
+public interface IClienteRepository
+{
+    List<Cliente> ObtenerTodos();
+    Cliente? ObtenerPorId(int id);
+    void Insertar(Cliente cliente);
+}
+Una implementación con Entity Framework Core sería:
+public class ClienteRepository : IClienteRepository
+{
+    private readonly AppDbContext context;
+
+    public ClienteRepository(AppDbContext context)
+    {
+        this.context = context;
+    }
+
+    public List<Cliente> ObtenerTodos()
+    {
+        return context.Clientes.ToList();
+    }
+
+    public Cliente? ObtenerPorId(int id)
+    {
+        return context.Clientes.Find(id);
+    }
+
+    public void Insertar(Cliente cliente)
+    {
+        context.Clientes.Add(cliente);
+        context.SaveChanges();
+    }
+}
+También puede existir una implementación temporal para realizar pruebas:
+public class ClienteRepositoryMemoria : IClienteRepository
+{
+    private readonly List<Cliente> clientes = new();
+
+    public List<Cliente> ObtenerTodos()
+    {
+        return clientes;
+    }
+
+    public Cliente? ObtenerPorId(int id)
+    {
+        return clientes.FirstOrDefault(x => x.ClienteId == id);
+    }
+
+    public void Insertar(Cliente cliente)
+    {
+        clientes.Add(cliente);
+    }
+}
+El servicio puede trabajar con cualquiera de las dos implementaciones:
+public class ClienteService
+{
+    private readonly IClienteRepository clienteRepository;
+
+    public ClienteService(IClienteRepository clienteRepository)
+    {
+        this.clienteRepository = clienteRepository;
+    }
+
+    public List<Cliente> ObtenerClientes()
+    {
+        return clienteRepository.ObtenerTodos();
+    }
+}
+La clase ClienteRepositoryMemoria puede sustituir a ClienteRepository sin cambiar el código de ClienteService. Esto es especialmente útil para realizar pruebas sin utilizar una base de datos real.
+Para cumplir correctamente el principio, ambas implementaciones deben respetar el contrato de la interfaz. Por ejemplo, ninguna debería devolver datos con un formato inesperado ni lanzar errores que contradigan el comportamiento definido.
+Relación con los contenidos del curso
+Este principio se relaciona con:
+•	Métodos de testeo.
+•	Interfaces.
+•	Entity Framework Core.
+•	Repositorios.
+•	Inyección de dependencias.
+•	Controladores asíncronos.
+•	DbContext.
+•	Servicios Scoped, Transient y Singleton.
+________________________________________
+4. Principio de segregación de interfaces
+Interface Segregation Principle — ISP
+Este principio establece que una clase no debería estar obligada a implementar métodos que no necesita.
+Es preferible crear varias interfaces pequeñas y específicas en lugar de una interfaz demasiado grande que contenga muchas funciones diferentes.
+Ejemplo incorrecto
+public interface ISistemaCompleto
+{
+    void CrearCliente(Cliente cliente);
+    void EliminarCliente(int id);
+    void GenerarReporte();
+    void EnviarCorreo();
+    void RegistrarVehiculo();
+    void CrearCita();
+}
+Esta interfaz tiene demasiadas responsabilidades. Una clase encargada de clientes estaría obligada a implementar métodos relacionados con reportes, correos, vehículos y citas.
+Evidencia de aplicación correcta
+Las interfaces pueden dividirse según su responsabilidad:
+public interface IClienteRepository
+{
+    List<Cliente> ObtenerTodos();
+    Cliente? ObtenerPorId(int id);
+    void Insertar(Cliente cliente);
+}
+public interface IReporteService
+{
+    byte[] GenerarReporte();
+}
+public interface ICorreoService
+{
+    void EnviarCorreo(string destinatario, string mensaje);
+}
+public interface ICitaRepository
+{
+    List<Cita> ObtenerTodas();
+    void Registrar(Cita cita);
+}
+De esta forma, cada clase implementa únicamente los métodos que necesita.
+public class ClienteRepository : IClienteRepository
+{
+    public List<Cliente> ObtenerTodos()
+    {
+        // Consulta de clientes.
+        return new List<Cliente>();
+    }
+
+    public Cliente? ObtenerPorId(int id)
+    {
+        // Búsqueda del cliente.
+        return null;
+    }
+
+    public void Insertar(Cliente cliente)
+    {
+        // Registro del cliente.
+    }
+}
+La clase ClienteRepository no está obligada a implementar métodos relacionados con correos, reportes o citas.
+Relación con los contenidos del curso
+Este principio se relaciona con:
+•	Inyección de dependencias.
+•	Modelos.
+•	Controladores.
+•	Servicios.
+•	Operaciones CRUD.
+•	Entity Framework Core.
+•	Interfaces de usuario.
+•	Configuraciones como servicio.
+•	Métodos de testeo.
+________________________________________
+5. Principio de inversión de dependencias
+Dependency Inversion Principle — DIP
+Este principio establece que las clases de alto nivel no deben depender directamente de clases concretas de bajo nivel. Ambas deben depender de abstracciones, como interfaces.
+Por ejemplo, un servicio no debería crear directamente una instancia de un repositorio.
+Ejemplo incorrecto
+public class ClienteService
+{
+    private readonly ClienteRepository clienteRepository;
+
+    public ClienteService()
+    {
+        clienteRepository = new ClienteRepository();
+    }
+}
+Este código genera un acoplamiento fuerte, porque ClienteService depende directamente de ClienteRepository.
+También dificulta las pruebas, ya que no es posible reemplazar fácilmente el repositorio por una implementación simulada.
+Evidencia de aplicación correcta
+Primero se define una abstracción:
+public interface IClienteRepository
+{
+    List<Cliente> ObtenerTodos();
+    Cliente? ObtenerPorId(int id);
+    void Insertar(Cliente cliente);
+}
+El servicio depende de la interfaz:
+public class ClienteService
+{
+    private readonly IClienteRepository clienteRepository;
+
+    public ClienteService(IClienteRepository clienteRepository)
+    {
+        this.clienteRepository = clienteRepository;
+    }
+
+    public List<Cliente> ObtenerClientes()
+    {
+        return clienteRepository.ObtenerTodos();
+    }
+
+    public void RegistrarCliente(Cliente cliente)
+    {
+        if (string.IsNullOrWhiteSpace(cliente.Nombre))
+        {
+            throw new ArgumentException("El nombre es obligatorio.");
+        }
+
+        clienteRepository.Insertar(cliente);
+    }
+}
+El controlador también recibe sus dependencias por medio del constructor:
+public class ClientesController : Controller
+{
+    private readonly ClienteService clienteService;
+
+    public ClientesController(ClienteService clienteService)
+    {
+        this.clienteService = clienteService;
+    }
+
+    public IActionResult Index()
+    {
+        var clientes = clienteService.ObtenerClientes();
+        return View(clientes);
+    }
+}
+Finalmente, las dependencias se registran en Program.cs:
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<ClienteService>();
+ASP.NET Core se encarga de crear los objetos y suministrarlos a las clases que los necesitan.
+Este principio representa uno de los ejemplos más claros de SOLID dentro de ASP.NET Core, debido a que el framework incluye un contenedor de inyección de dependencias.
+Relación con los tiempos de vida de los servicios
+ASP.NET Core permite registrar dependencias utilizando diferentes tiempos de vida:
+builder.Services.AddTransient<IMiServicio, MiServicio>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddSingleton<IConfiguracionGlobal, ConfiguracionGlobal>();
+•	Transient: crea una instancia cada vez que se solicita el servicio.
+•	Scoped: crea una instancia por cada solicitud HTTP.
+•	Singleton: mantiene una única instancia durante toda la ejecución de la aplicación.
+Para repositorios que utilizan DbContext, normalmente se utiliza Scoped.
+Relación con los contenidos del curso
+Este principio se relaciona directamente con:
+•	Inyección de dependencias.
+•	Principio de alimentación de objetos.
+•	FromServices.
+•	Transient.
+•	Scoped.
+•	Singleton.
+•	View Injection.
+•	Configuraciones como servicio.
+•	Entity Framework Core.
+•	Controladores.
+•	Manejo de excepciones.
+________________________________________
+Ejemplo general de organización del proyecto
+Una estructura que demuestra la aplicación de los principios SOLID podría ser la siguiente:
+Proyecto
+│
+├── Controllers
+│   ├── ClientesController.cs
+│   ├── VehiculosController.cs
+│   └── CitasController.cs
+│
+├── Models
+│   ├── Cliente.cs
+│   ├── Vehiculo.cs
+│   └── Cita.cs
+│
+├── Repositories
+│   ├── IClienteRepository.cs
+│   ├── ClienteRepository.cs
+│   ├── IVehiculoRepository.cs
+│   └── VehiculoRepository.cs
+│
+├── Services
+│   ├── ClienteService.cs
+│   ├── VehiculoService.cs
+│   └── CitaService.cs
+│
+├── Data
+│   └── AppDbContext.cs
+│
+├── Views
+│   ├── Clientes
+│   ├── Vehiculos
+│   └── Citas
+│
+└── Program.cs
+Esta distribución evidencia principalmente:
+•	Responsabilidad única al separar modelos, vistas, controladores, servicios y repositorios.
+•	Inversión de dependencias mediante interfaces e inyección de dependencias.
+•	Segregación de interfaces al definir contratos específicos para cada módulo.
+•	Sustitución de Liskov al permitir varias implementaciones de un repositorio.
+•	Abierto/cerrado al permitir agregar nuevas implementaciones sin modificar las clases existentes.
+________________________________________
+Cuadro resumen
+Principio	Significado	Evidencia en ASP.NET Core
+SRP	Una clase debe tener una sola responsabilidad.	Separación entre modelos, vistas, controladores, servicios y repositorios.
+OCP	Las clases deben extenderse sin modificar constantemente su código.	Interfaces, nuevas implementaciones de servicios y generadores de reportes.
+LSP	Una implementación debe poder sustituir a otra sin afectar el sistema.	Repositorio de Entity Framework y repositorio en memoria usando la misma interfaz.
+ISP	Las interfaces deben ser pequeñas y específicas.	Interfaces separadas para clientes, reportes, correos, vehículos y citas.
+DIP	Las clases deben depender de abstracciones y no de implementaciones concretas.	Inyección de dependencias mediante interfaces y registro en Program.cs.
+________________________________________
+Evidencias que puede presentar el grupo
+Para demostrar la aplicación real de SOLID, el grupo puede incluir las siguientes evidencias:
+1.	Captura de la estructura de carpetas del proyecto.
+2.	Captura del modelo utilizado, por ejemplo Cliente.cs.
+3.	Captura del controlador, mostrando que recibe el servicio mediante el constructor.
+4.	Captura de una clase de servicio con las validaciones del negocio.
+5.	Captura de una interfaz de repositorio.
+6.	Captura de la implementación del repositorio con Entity Framework Core.
+7.	Captura del registro de dependencias en Program.cs.
+8.	Captura de las operaciones CRUD funcionando en la aplicación.
+9.	Captura de las pruebas realizadas con Postman.
+10.	Captura de una prueba que utilice una implementación en memoria o simulada.
+En cada captura se debe indicar cuál principio SOLID se está demostrando. Por ejemplo:
+Evidencia del principio de responsabilidad única: el controlador solamente administra las solicitudes HTTP, mientras que las validaciones se realizan en el servicio y el acceso a los datos se encuentra en el repositorio.
+________________________________________
+Conclusión
+Los principios SOLID permiten desarrollar aplicaciones ASP.NET Core con una estructura más clara y organizada. Su aplicación puede observarse en la separación proporcionada por el patrón MVC, en el uso de servicios y repositorios, en la creación de interfaces y en la inyección de dependencias.
+El principio de responsabilidad única evita que una clase realice demasiadas funciones. El principio abierto/cerrado permite agregar nuevas funcionalidades sin modificar innecesariamente el código existente. La sustitución de Liskov permite reemplazar implementaciones manteniendo el funcionamiento esperado. La segregación de interfaces evita obligar a las clases a implementar métodos que no utilizan. Finalmente, la inversión de dependencias reduce el acoplamiento mediante el uso de abstracciones e inyección de dependencias.
+Aplicar SOLID no significa únicamente crear más clases o interfaces, sino distribuir adecuadamente las responsabilidades del sistema. Esto facilita el mantenimiento, las pruebas, la corrección de errores y la incorporación de futuras funcionalidades.
+
