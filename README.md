@@ -11,6 +11,11 @@ La aplicación utiliza una arquitectura por capas, una API REST, Entity Framewor
 - Alex Felipe Bolaños Alfaro
 - Kendall Andrés Salas González
 
+## Link de Github
+El código fuente del proyecto se encuentra disponible en GitHub:
+
+[Repositorio Practica4Grupo7](https://github.com/1621j/Practica4Grupo7)
+
 ## Tecnologías utilizadas
 
 - .NET 8
