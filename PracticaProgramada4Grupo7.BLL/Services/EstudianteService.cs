@@ -70,8 +70,8 @@ namespace PracticaProgramada4Grupo7.BLL.Services
         }
 
         public async Task<bool> ActualizarAsync(
-            int id,
-            EstudianteActualizarDto estudianteDto)
+         int id,
+         EstudianteActualizarDto estudianteDto)
         {
             var estudianteExistente =
                 await _estudianteRepositorio.ObtenerPorIdAsync(id);
@@ -81,56 +81,107 @@ namespace PracticaProgramada4Grupo7.BLL.Services
                 return false;
             }
 
-            var estudiantePorCedula =
-                await _estudianteRepositorio.ObtenerPorCedulaAsync(
-                    estudianteDto.Cedula.Trim());
-
-            if (estudiantePorCedula != null &&
-                estudiantePorCedula.Id != id)
+            if (estudianteDto.Cedula != null)
             {
-                throw new InvalidOperationException(
-                    "Ya existe otro estudiante con esa cédula.");
+                ValidarTexto(
+                    estudianteDto.Cedula,
+                    "La cédula");
+
+                var estudiantePorCedula =
+                    await _estudianteRepositorio
+                        .ObtenerPorCedulaAsync(
+                            estudianteDto.Cedula.Trim());
+
+                if (estudiantePorCedula != null &&
+                    estudiantePorCedula.Id != id)
+                {
+                    throw new InvalidOperationException(
+                        "Ya existe otro estudiante con esa cédula.");
+                }
+
+                estudianteExistente.Cedula =
+                    estudianteDto.Cedula.Trim();
             }
 
-            var estudiantePorCorreo =
-                await _estudianteRepositorio.ObtenerPorCorreoAsync(
-                    estudianteDto.Correo.Trim());
-
-            if (estudiantePorCorreo != null &&
-                estudiantePorCorreo.Id != id)
+            if (estudianteDto.Nombre != null)
             {
-                throw new InvalidOperationException(
-                    "Ya existe otro estudiante con ese correo.");
+                ValidarTexto(
+                    estudianteDto.Nombre,
+                    "El nombre");
+
+                estudianteExistente.Nombre =
+                    estudianteDto.Nombre.Trim();
             }
 
-            estudianteExistente.Cedula =
-                estudianteDto.Cedula.Trim();
-
-            estudianteExistente.Nombre =
-                estudianteDto.Nombre.Trim();
-
-            estudianteExistente.PrimerApellido =
-                estudianteDto.PrimerApellido.Trim();
-
-            estudianteExistente.SegundoApellido =
-                estudianteDto.SegundoApellido?.Trim()
-                ?? string.Empty;
-
-            estudianteExistente.Correo =
-                estudianteDto.Correo.Trim();
-
-            estudianteExistente.Carrera =
-                estudianteDto.Carrera.Trim();
-
-            if (estudianteDto.Activo is bool activo)
+            if (estudianteDto.PrimerApellido != null)
             {
-                estudianteExistente.Activo = activo;
+                ValidarTexto(
+                    estudianteDto.PrimerApellido,
+                    "El primer apellido");
+
+                estudianteExistente.PrimerApellido =
+                    estudianteDto.PrimerApellido.Trim();
             }
 
-            await _estudianteRepositorio.ActualizarAsync(
-                estudianteExistente);
+            if (estudianteDto.SegundoApellido != null)
+            {
+                estudianteExistente.SegundoApellido =
+                    estudianteDto.SegundoApellido.Trim();
+            }
+
+            if (estudianteDto.Correo != null)
+            {
+                ValidarTexto(
+                    estudianteDto.Correo,
+                    "El correo");
+
+                var estudiantePorCorreo =
+                    await _estudianteRepositorio
+                        .ObtenerPorCorreoAsync(
+                            estudianteDto.Correo.Trim());
+
+                if (estudiantePorCorreo != null &&
+                    estudiantePorCorreo.Id != id)
+                {
+                    throw new InvalidOperationException(
+                        "Ya existe otro estudiante con ese correo.");
+                }
+
+                estudianteExistente.Correo =
+                    estudianteDto.Correo.Trim();
+            }
+
+            if (estudianteDto.Carrera != null)
+            {
+                ValidarTexto(
+                    estudianteDto.Carrera,
+                    "La carrera");
+
+                estudianteExistente.Carrera =
+                    estudianteDto.Carrera.Trim();
+            }
+
+            if (estudianteDto.Activo.HasValue)
+            {
+                estudianteExistente.Activo =
+                    estudianteDto.Activo.Value;
+            }
+
+            await _estudianteRepositorio
+                .ActualizarAsync(estudianteExistente);
 
             return true;
+        }
+
+        private static void ValidarTexto(
+            string valor,
+            string nombreCampo)
+        {
+            if (string.IsNullOrWhiteSpace(valor))
+            {
+                throw new ArgumentException(
+                    $"{nombreCampo} no puede estar vacío.");
+            }
         }
 
         public async Task<bool> EliminarAsync(int id)
