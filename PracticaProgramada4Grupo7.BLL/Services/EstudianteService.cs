@@ -71,7 +71,7 @@ namespace PracticaProgramada4Grupo7.BLL.Services
 
         public async Task<bool> ActualizarAsync(
             int id,
-            EstudianteDto estudianteDto)
+            EstudianteActualizarDto estudianteDto)
         {
             var estudianteExistente =
                 await _estudianteRepositorio.ObtenerPorIdAsync(id);
@@ -122,8 +122,10 @@ namespace PracticaProgramada4Grupo7.BLL.Services
             estudianteExistente.Carrera =
                 estudianteDto.Carrera.Trim();
 
-            estudianteExistente.Activo =
-                estudianteDto.Activo;
+            if (estudianteDto.Activo is bool activo)
+            {
+                estudianteExistente.Activo = activo;
+            }
 
             await _estudianteRepositorio.ActualizarAsync(
                 estudianteExistente);

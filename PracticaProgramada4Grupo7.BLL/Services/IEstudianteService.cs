@@ -13,7 +13,7 @@ namespace PracticaProgramada4Grupo7.BLL.Services
 
         Task<bool> ActualizarAsync(
             int id,
-            EstudianteDto estudianteDto);
+            EstudianteActualizarDto estudianteDto);
 
         Task<bool> EliminarAsync(int id);
     }

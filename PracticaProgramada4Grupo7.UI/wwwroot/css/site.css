@@ -1,0 +1,87 @@
+html {
+    position: relative;
+    min-height: 100%;
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+:root {
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: #18212f;
+    background: #f4f6fa;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    color: #18212f;
+    background: #f4f6fa;
+}
+
+main {
+    flex: 1;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #18212f;
+    font-weight: 700;
+}
+
+a {
+    color: #2864dc;
+}
+
+.navbar-brand {
+    letter-spacing: 0.2px;
+}
+
+footer {
+    margin-top: auto;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+        outline: 3px solid rgba(40, 100, 220, 0.3);
+        outline-offset: 2px;
+    }
+
+.input-validation-error {
+    border-color: #b62c2c !important;
+}
+
+.field-validation-error {
+    color: #b62c2c;
+    font-size: 12px;
+}
+
+.validation-summary-errors {
+    color: #a72b2b;
+}

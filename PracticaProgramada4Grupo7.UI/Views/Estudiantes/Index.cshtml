@@ -1,0 +1,423 @@
+﻿@model PracticaProgramada4Grupo7.UI.Models.EstudiantesViewModel
+
+@{
+    ViewData["Title"] = "Estudiantes";
+
+    bool abrirFormulario =
+        ViewBag.AbrirFormulario != null &&
+        ViewBag.AbrirFormulario == true;
+
+    bool modoEditar =
+        ViewBag.ModoEditar != null &&
+        ViewBag.ModoEditar == true;
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/estudiantes.css"
+          asp-append-version="true" />
+}
+
+<section class="encabezado-pagina">
+    <div>
+        <p class="subtitulo">PRÁCTICA PROGRAMADA 4</p>
+
+        <h1>Registro de estudiantes</h1>
+
+        <p class="descripcion">
+            Administración de estudiantes mediante el consumo de la API.
+        </p>
+    </div>
+
+    <button type="button"
+            id="botonNuevoEstudiante"
+            class="boton boton-principal">
+        + Registrar estudiante
+    </button>
+</section>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="mensaje mensaje-exito"
+         role="alert">
+        @TempData["Exito"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="mensaje mensaje-error"
+         role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="mensaje mensaje-error"
+         role="alert">
+        @ViewBag.Error
+    </div>
+}
+
+<section class="tarjeta tabla-responsive">
+    @if (Model.Estudiantes.Count == 0)
+    {
+        <div class="sin-registros">
+            <h2>No hay estudiantes registrados</h2>
+
+            <p>
+                Presione “Registrar estudiante” para crear el primer registro.
+            </p>
+        </div>
+    }
+    else
+    {
+        <table class="tabla-estudiantes">
+            <thead>
+                <tr>
+                    <th>Cédula</th>
+                    <th>Nombre completo</th>
+                    <th>Correo</th>
+                    <th>Carrera</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var estudiante in Model.Estudiantes)
+                {
+                    <tr>
+                        <td>@estudiante.Cedula</td>
+
+                        <td>
+                            @estudiante.Nombre
+                            @estudiante.PrimerApellido
+                            @estudiante.SegundoApellido
+                        </td>
+
+                        <td>@estudiante.Correo</td>
+
+                        <td>@estudiante.Carrera</td>
+
+                        <td>
+                            @if (estudiante.Activo)
+                            {
+                                <span class="estado estado-activo">
+                                    Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="estado estado-inactivo">
+                                    Inactivo
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="acciones">
+                                <button type="button"
+                                        class="accion accion-ver boton-ver"
+                                        data-id="@estudiante.Id"
+                                        data-cedula="@estudiante.Cedula"
+                                        data-nombre="@estudiante.Nombre"
+                                        data-primer-apellido="@estudiante.PrimerApellido"
+                                        data-segundo-apellido="@estudiante.SegundoApellido"
+                                        data-correo="@estudiante.Correo"
+                                        data-carrera="@estudiante.Carrera"
+                                        data-activo="@estudiante.Activo.ToString().ToLowerInvariant()">
+                                    Ver
+                                </button>
+
+                                <button type="button"
+                                        class="accion accion-editar boton-editar"
+                                        data-id="@estudiante.Id"
+                                        data-cedula="@estudiante.Cedula"
+                                        data-nombre="@estudiante.Nombre"
+                                        data-primer-apellido="@estudiante.PrimerApellido"
+                                        data-segundo-apellido="@estudiante.SegundoApellido"
+                                        data-correo="@estudiante.Correo"
+                                        data-carrera="@estudiante.Carrera"
+                                        data-activo="@estudiante.Activo.ToString().ToLowerInvariant()">
+                                    Editar
+                                </button>
+
+                                <button type="button"
+                                        class="accion accion-eliminar boton-eliminar"
+                                        data-id="@estudiante.Id"
+                                        data-nombre="@estudiante.Nombre"
+                                        data-primer-apellido="@estudiante.PrimerApellido">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
+
+<!-- Diálogo para registrar y editar -->
+<dialog id="modalFormulario"
+        class="dialogo">
+
+    <div class="dialogo-contenido">
+        <div class="dialogo-encabezado">
+            <div>
+                <p class="subtitulo"
+                   id="subtituloFormulario">
+                    NUEVO REGISTRO
+                </p>
+
+                <h2 id="tituloFormulario">
+                    Registrar estudiante
+                </h2>
+            </div>
+
+            <button type="button"
+                    class="cerrar"
+                    id="cerrarFormulario"
+                    aria-label="Cerrar formulario">
+                ×
+            </button>
+        </div>
+
+        <form id="formularioEstudiante"
+              asp-controller="Estudiantes"
+              asp-action="Registrar"
+              method="post"
+              data-url-registrar="@Url.Action("Registrar", "Estudiantes")"
+              data-url-editar="@Url.Action("Editar", "Estudiantes")"
+              data-abrir-formulario="@abrirFormulario.ToString().ToLowerInvariant()"
+              data-modo-editar="@modoEditar.ToString().ToLowerInvariant()">
+
+            <input type="hidden"
+                   id="estudianteId"
+                   name="id"
+                   value="@Model.Formulario.Id" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="resumen-validacion"
+                 role="alert">
+            </div>
+
+            <div class="formulario-grid">
+                <div class="campo">
+                    <label asp-for="Formulario.Cedula">
+                        Cédula
+                    </label>
+
+                    <input asp-for="Formulario.Cedula"
+                           id="cedula"
+                           placeholder="1-1111-1111" />
+
+                    <span asp-validation-for="Formulario.Cedula">
+                    </span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Formulario.Nombre">
+                        Nombre
+                    </label>
+
+                    <input asp-for="Formulario.Nombre"
+                           id="nombre"
+                           placeholder="Nombre del estudiante" />
+
+                    <span asp-validation-for="Formulario.Nombre">
+                    </span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Formulario.PrimerApellido">
+                        Primer apellido
+                    </label>
+
+                    <input asp-for="Formulario.PrimerApellido"
+                           id="primerApellido"
+                           placeholder="Primer apellido" />
+
+                    <span asp-validation-for="Formulario.PrimerApellido">
+                    </span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Formulario.SegundoApellido">
+                        Segundo apellido
+                    </label>
+
+                    <input asp-for="Formulario.SegundoApellido"
+                           id="segundoApellido"
+                           placeholder="Segundo apellido" />
+
+                    <span asp-validation-for="Formulario.SegundoApellido">
+                    </span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Formulario.Correo">
+                        Correo electrónico
+                    </label>
+
+                    <input asp-for="Formulario.Correo"
+                           id="correo"
+                           type="email"
+                           placeholder="correo@ejemplo.com" />
+
+                    <span asp-validation-for="Formulario.Correo">
+                    </span>
+                </div>
+
+                <div class="campo">
+                    <label asp-for="Formulario.Carrera">
+                        Carrera
+                    </label>
+
+                    <input asp-for="Formulario.Carrera"
+                           id="carrera"
+                           placeholder="Ingeniería en Sistemas" />
+
+                    <span asp-validation-for="Formulario.Carrera">
+                    </span>
+                </div>
+            </div>
+
+            <label class="campo-activo">
+                <input asp-for="Formulario.Activo"
+                       id="activo" />
+
+                Estudiante activo
+            </label>
+
+            <div class="dialogo-acciones">
+                <button type="button"
+                        class="boton boton-secundario"
+                        id="cancelarFormulario">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="boton boton-principal"
+                        id="botonGuardar">
+                    Guardar estudiante
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<!-- Diálogo para consultar los datos -->
+<dialog id="modalDetalles"
+        class="dialogo">
+
+    <div class="dialogo-contenido">
+        <div class="dialogo-encabezado">
+            <div>
+                <p class="subtitulo">
+                    DETALLE DEL ESTUDIANTE
+                </p>
+
+                <h2 id="detalleNombreCompleto"></h2>
+            </div>
+
+            <button type="button"
+                    class="cerrar"
+                    id="cerrarDetalles"
+                    aria-label="Cerrar detalles">
+                ×
+            </button>
+        </div>
+
+        <div class="detalle-grid">
+            <div class="detalle">
+                <span>Cédula</span>
+                <strong id="detalleCedula"></strong>
+            </div>
+
+            <div class="detalle">
+                <span>Correo electrónico</span>
+                <strong id="detalleCorreo"></strong>
+            </div>
+
+            <div class="detalle">
+                <span>Carrera</span>
+                <strong id="detalleCarrera"></strong>
+            </div>
+
+            <div class="detalle">
+                <span>Estado</span>
+                <strong id="detalleEstado"></strong>
+            </div>
+        </div>
+
+        <div class="dialogo-acciones">
+            <button type="button"
+                    class="boton boton-secundario"
+                    id="botonCerrarDetalles">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</dialog>
+
+<!-- Diálogo para confirmar la eliminación -->
+<dialog id="modalEliminar"
+        class="dialogo dialogo-pequeno">
+
+    <div class="dialogo-contenido">
+        <div class="dialogo-encabezado">
+            <div>
+                <p class="subtitulo subtitulo-peligro">
+                    CONFIRMAR ELIMINACIÓN
+                </p>
+
+                <h2>¿Eliminar estudiante?</h2>
+            </div>
+
+            <button type="button"
+                    class="cerrar"
+                    id="cerrarEliminar"
+                    aria-label="Cerrar confirmación">
+                ×
+            </button>
+        </div>
+
+        <p>
+            Se eliminará permanentemente a
+            <strong id="nombreEliminar"></strong>.
+        </p>
+
+        <form asp-controller="Estudiantes"
+              asp-action="Eliminar"
+              method="post">
+
+            <input type="hidden"
+                   id="eliminarId"
+                   name="id" />
+
+            <div class="dialogo-acciones">
+                <button type="button"
+                        class="boton boton-secundario"
+                        id="cancelarEliminar">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="boton boton-peligro">
+                    Sí, eliminar
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script src="~/js/estudiantes.js"
+            asp-append-version="true">
+    </script>
+}

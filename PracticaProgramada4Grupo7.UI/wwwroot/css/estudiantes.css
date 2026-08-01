@@ -1,0 +1,375 @@
+﻿.encabezado-pagina {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+    .encabezado-pagina h1 {
+        margin: 4px 0;
+        font-size: 38px;
+    }
+
+.subtitulo {
+    margin: 0;
+    color: #2864dc;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.descripcion {
+    margin-bottom: 0;
+    color: #6b7688;
+}
+
+.tarjeta {
+    background: #ffffff;
+    border: 1px solid #e1e6ee;
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(20, 40, 70, 0.06);
+}
+
+.tabla-responsive {
+    overflow-x: auto;
+}
+
+.tabla-estudiantes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .tabla-estudiantes th,
+    .tabla-estudiantes td {
+        padding: 16px;
+        text-align: left;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf0f4;
+    }
+
+    .tabla-estudiantes th {
+        color: #647084;
+        background: #f8f9fb;
+        font-size: 12px;
+        text-transform: uppercase;
+    }
+
+    .tabla-estudiantes tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .tabla-estudiantes tbody tr:hover {
+        background: #fafbfc;
+    }
+
+.estado {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.estado-activo {
+    color: #18733c;
+    background: #dff6e8;
+}
+
+.estado-inactivo {
+    color: #5c6470;
+    background: #eceef2;
+}
+
+.acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.accion {
+    padding: 4px;
+    border: none;
+    background: transparent;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.accion-ver,
+.accion-editar {
+    color: #2864dc;
+}
+
+.accion-eliminar {
+    color: #ba3030;
+}
+
+.accion:hover {
+    text-decoration: underline;
+}
+
+.boton {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+    .boton:hover {
+        transform: translateY(-1px);
+    }
+
+.boton-principal {
+    color: #ffffff;
+    background: #2864dc;
+}
+
+    .boton-principal:hover {
+        background: #1f51b6;
+    }
+
+.boton-secundario {
+    color: #26334a;
+    background: #e8ebf1;
+}
+
+    .boton-secundario:hover {
+        background: #d9dee7;
+    }
+
+.boton-peligro {
+    color: #ffffff;
+    background: #c93434;
+}
+
+    .boton-peligro:hover {
+        background: #a72525;
+    }
+
+.mensaje {
+    margin-bottom: 20px;
+    padding: 14px 17px;
+    border-radius: 9px;
+}
+
+.mensaje-exito {
+    color: #176537;
+    background: #dff6e8;
+}
+
+.mensaje-error,
+.resumen-validacion {
+    color: #a72b2b;
+    background: #fde7e7;
+}
+
+.resumen-validacion {
+    margin-bottom: 20px;
+    padding: 12px 15px;
+    border-radius: 8px;
+}
+
+    .resumen-validacion:empty {
+        display: none;
+    }
+
+    .resumen-validacion ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+.sin-registros {
+    padding: 65px 20px;
+    text-align: center;
+}
+
+    .sin-registros h2 {
+        margin-bottom: 10px;
+    }
+
+    .sin-registros p {
+        margin-bottom: 0;
+        color: #6b7688;
+    }
+
+/* Diálogos */
+
+.dialogo {
+    width: min(780px, calc(100% - 30px));
+    max-height: calc(100vh - 30px);
+    padding: 0;
+    overflow-y: auto;
+    border: none;
+    border-radius: 15px;
+    background: #ffffff;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
+}
+
+    .dialogo::backdrop {
+        background: rgba(10, 20, 38, 0.65);
+        backdrop-filter: blur(3px);
+    }
+
+.dialogo-pequeno {
+    max-width: 520px;
+}
+
+.dialogo-contenido {
+    padding: 30px;
+}
+
+.dialogo-encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+    .dialogo-encabezado h2 {
+        margin: 5px 0 0;
+    }
+
+.cerrar {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    color: #596474;
+    background: transparent;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .cerrar:hover {
+        color: #172033;
+        background: #eef1f5;
+    }
+
+/* Formulario */
+
+.formulario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+    .campo label {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .campo input {
+        width: 100%;
+        padding: 11px;
+        border: 1px solid #cdd4df;
+        border-radius: 8px;
+        font: inherit;
+    }
+
+        .campo input:focus {
+            border-color: #2864dc;
+            outline: 3px solid rgba(40, 100, 220, 0.12);
+        }
+
+        .campo input.input-validation-error {
+            border-color: #b62c2c;
+        }
+
+    .campo span {
+        min-height: 18px;
+        color: #b62c2c;
+        font-size: 12px;
+    }
+
+.campo-activo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .campo-activo input {
+        width: 18px;
+        height: 18px;
+    }
+
+.dialogo-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+/* Detalles */
+
+.detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 17px;
+    background: #f5f7fa;
+    border-radius: 9px;
+}
+
+    .detalle span {
+        color: #697587;
+        font-size: 13px;
+    }
+
+    .detalle strong {
+        overflow-wrap: anywhere;
+    }
+
+.subtitulo-peligro {
+    color: #c93434;
+}
+
+/* Dispositivos pequeños */
+
+@media (max-width: 720px) {
+    .encabezado-pagina {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+        .encabezado-pagina h1 {
+            font-size: 30px;
+        }
+
+    .formulario-grid,
+    .detalle-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dialogo-contenido {
+        padding: 22px;
+    }
+
+    .dialogo-acciones {
+        flex-wrap: wrap;
+    }
+
+        .dialogo-acciones .boton {
+            flex: 1;
+        }
+}

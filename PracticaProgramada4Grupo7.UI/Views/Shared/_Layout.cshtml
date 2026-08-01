@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <meta name="description"
+          content="Sistema para el registro y administración de estudiantes." />
+
+    <title>
+        @ViewData["Title"] - Registro de estudiantes
+    </title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Estilos generales -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <!-- Estilos generados por Razor -->
+    <link rel="stylesheet"
+          href="~/PracticaProgramada4Grupo7.UI.styles.css"
+          asp-append-version="true" />
+
+    <!-- Estilos particulares de cada vista -->
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+            <div class="container">
+                <a class="navbar-brand fw-bold"
+                   asp-area=""
+                   asp-controller="Estudiantes"
+                   asp-action="Index">
+                    Registro de estudiantes
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#menuPrincipal"
+                        aria-controls="menuPrincipal"
+                        aria-expanded="false"
+                        aria-label="Mostrar menú de navegación">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div id="menuPrincipal"
+                     class="collapse navbar-collapse">
+
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active"
+                               aria-current="page"
+                               asp-area=""
+                               asp-controller="Estudiantes"
+                               asp-action="Index">
+                                Estudiantes
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main"
+          class="container py-4">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top bg-white text-muted mt-auto">
+        <div class="container py-3 text-center">
+            <small>
+                &copy; @DateTime.Now.Year -
+                Práctica Programada 4 - Grupo 7
+            </small>
+        </div>
+    </footer>
+
+    <!-- Bibliotecas generales -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <!-- JavaScript general -->
+    <script src="~/js/site.js"
+            asp-append-version="true">
+    </script>
+
+    <!-- JavaScript particular de cada vista -->
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
